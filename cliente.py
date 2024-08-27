@@ -9,7 +9,6 @@ class Cliente:
     
     def run(self):
         self.open()  # Abre a conexão com o servidor
-        # codigo novo
         while True:
             msg = input(str(self.prompt))  # Lê a mensagem do usuário
             if msg.strip() != "":  # Verifica se a mensagem não está vazia
@@ -41,13 +40,16 @@ class Cliente:
             self.connected = False  # Define o estado de conexão como desconectado
             
     def close(self):
-        self.open()  # Abre a conexão com o servidor
-        self.send("exit")  # Envia a mensagem 'exit' para o servidor
-        self.recive()  # Recebe a resposta do servidor
+        if self.connected:
+            self.send("exit")  # Envia a mensagem 'exit' para o servidor
+            self.recive()  # Recebe a resposta do servidor
+            self.sc.close()  # Fecha o socket
+            self.connected = False  # Define o estado de conexão como desconectado
     
     def open(self):
-        if(self.connected == False):  # Verifica se não está conectado
+        if not self.connected:  # Verifica se não está conectado
             try:
+                self.sc = socket.socket()  # Cria um novo socket TCP/IP
                 self.sc.connect((self.info.HOST_SERVER, self.info.SUCESSOR))  # Tenta conectar ao servidor
                 self.connected = True  # Define o estado de conexão como conectado
             except IOError:
@@ -55,15 +57,12 @@ class Cliente:
                 print("SUCESSOR({0}), Host({1}), PORTA({2}) Falhou!!".format(self.info.sucessor_name, self.info.HOST_SERVER, str(self.info.SUCESSOR)))
                 self.connected = False  # Define o estado de conexão como desconectado
     
-    # codigo novo
     def send_protocol(self, k, ip, porta, comando):
         protocolo = f"[{k}, \"{ip}\", {porta}, \"{comando}\"]"
         print(f"Enviando protocolo: {protocolo}")
         self.send(protocolo)  # Usa o método send para enviar a mensagem
         self.recive()  # Recebe a resposta do sucessor
 
-    
-    # enviar finger table
     def enviar_com_finger_table(self, k, ip, porta, comando):
         # Lógica para encontrar a melhor entrada na Finger Table para a chave k
         for finger in reversed(self.info.finger_table):

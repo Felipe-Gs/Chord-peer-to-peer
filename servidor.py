@@ -8,7 +8,6 @@ class Servidor:
 
     def __init__(self, _info):
         self.info = _info
-        Servidor.prompt = self.info.host_name
         self.finger_table = self.calcular_finger_table()
 
     def run(self):
@@ -70,7 +69,6 @@ class Servidor:
 
         return found, midpoint
 
-    # Métodos que estavam faltando
     def get_key_loc(self, nodes, key, m):
         finger_table = self.get_fingers(nodes, m)
         for node, fingers in finger_table.items():

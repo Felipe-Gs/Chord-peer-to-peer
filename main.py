@@ -6,6 +6,20 @@ from data_com import DataCom  # Importa a classe DataCom do módulo data_com
 from servidor import Servidor  # Importa a classe Servidor do módulo servidor
 from cliente import Cliente  # Importa a classe Cliente do módulo cliente
 
+class Node:
+    def __init__(self, identifier, total_nodes):
+        self.identifier = identifier
+        self.total_nodes = total_nodes
+        self.finger_table = []
+
+    def calculate_finger_table(self):
+        for i in range(1, self.total_nodes + 1):
+            finger_id = (self.identifier + 2**(i-1)) % self.total_nodes
+            self.finger_table.append(finger_id)
+
+    def __str__(self):
+        return f"Node {self.identifier} Finger Table: {self.finger_table}"
+
 if __name__ == "__main__":
     numero_de_pares = 2  # Define o número padrão de pares como 2
     if len(sys.argv) > 2:
@@ -14,6 +28,12 @@ if __name__ == "__main__":
     info = DataCom("portas.txt", numero_de_pares)  # Cria uma instância de DataCom com o arquivo de portas e o número de pares
     servidor = Servidor(info)  # Cria uma instância de Servidor com as informações de DataCom
     cliente = Cliente(info)  # Cria uma instância de Cliente com as informações de DataCom
+
+    # Exemplo de uso da Finger Table
+    for i in range(numero_de_pares):
+        node = Node(i, numero_de_pares)
+        node.calculate_finger_table()
+        print(node)
 
     tserver = threading.Thread(target=servidor.run)  # Cria uma thread para executar o método run do servidor
     tserver.start()  # Inicia a thread do servidor
@@ -29,10 +49,3 @@ if __name__ == "__main__":
         tclient = threading.Thread(target=cliente.run)  # Cria uma thread para executar o método run do cliente
         tclient.start()  # Inicia a thread do cliente
         tserver.join()  # Aguarda a thread do servidor terminar
-        tclient.join()  # Aguarda a thread do cliente terminar
-        print("********** FIM CONECTADO **********")  # Imprime uma mensagem indicando que a conexão terminou
-        print(repr(readchar.readkey()))  # Lê e imprime a próxima tecla pressionada
-    else:
-        print("********** ABORT ANTES DE CONECTAR **********")  # Imprime uma mensagem indicando que a conexão foi abortada
-        cliente.close()  # Fecha a conexão do cliente
-        print(repr(readchar.readkey()))  # Lê e imprime a próxima tecla pressionada
